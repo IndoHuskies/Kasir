@@ -1,0 +1,70 @@
+body, h1 {
+	margin: 0;
+	padding: 0;
+	text-align: center;
+	font-family: Ubuntu, sans-serif;
+	font-weight: normal;
+}
+
+.header {
+	background-color: rgb(129, 27, 20);
+	padding: 0.5em;
+	color: white;
+	height: 55px;
+}
+
+.isauw img {
+	float: right;
+	margin-right: 1em;
+	height: 45px;
+}
+
+.keraton img {
+	float: left;
+	margin-right: 1em;
+	height: 45px;
+}
+
+.container h1 {
+	padding: 15px;
+}
+
+.btn {
+	width: 100%;
+	margin: 5px 0;
+}
+
+.product .item {
+	font-size: 25px;
+}
+
+.product {
+	padding: 5px 0;
+}
+
+.item, .name {
+	text-align: left;
+}
+
+.price {
+	text-align: right;
+}
+
+.orderForm {
+	padding-bottom: 50px;
+}
+
+.totalPrice {
+	font-weight: bold;
+}
+
+.final {
+	font-weight: bold;
+	text-align: right;
+	font-size: 1.5em;
+}
+
+.items {
+	list-style-type: none;
+	text-align: left;
+}
