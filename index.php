@@ -28,7 +28,7 @@
 				<hr>
 			</h1>
 				<div class="menu row">
-					<form class="orderForm row">
+					<form class="row" id="orderForm">
 						<div class="trans col-md-8">
 							<div class="product col-md-6" data-price="5.00">
 								<div class="item col-md-6" id="item1">
@@ -126,9 +126,9 @@
 	<script type="text/javascript">
 $(document).ready(function (){
 //Update total when quantity changes
-$(".product #quantity").change(function() {
-    updateTotal();
-});
+	$(".product #quantity").change(function() {
+	    updateTotal();
+	});
 
 // unit price
    $('.product p').each(function() {
@@ -136,8 +136,22 @@ $(".product #quantity").change(function() {
       $(this).before($price);
     });
 
-    $('input[type="submit"]').click(function() {
-    	var message = "";
+    $('#orderForm').submit(function(e) {	
+    	var date = new Date();
+    	var hour = date.getHours();
+    	if(hour<10) {
+                hour = "0"+hour;
+        }
+        var min = date.getMinutes();
+        if(m<10) {
+                min = "0"+min;
+        }
+        var sec = date.getSeconds();
+        if(sec<10) {
+                sec = "0"+sec;
+        }
+        var checkoutTime = hour+':'+min+":"+sec;
+        var message = "";
     	$(".product").each(function() {
         	var quantity = $('#quantity', this).val();
     		if(quantity > 0){
@@ -146,7 +160,28 @@ $(".product #quantity").change(function() {
     		}
     	});
     	message += $('.final').html();
-    	alert(message);
+        var formData = {
+        	item: message;
+        	time: checkoutTime;
+        	comment: $('#comment').val();
+        }
+        e.preventDefault();
+        var comm = '\n'+$('#comment').val();
+        if(confirm(message+comm+'\n'+OK?)){
+        	$.ajax({
+        		url:'tally.php',
+        		type: 'POST',
+        		data: formData
+        	}).success(function(msg)){
+        		if(msg = 'success'){
+        			$('#orderForm')[0].reset();
+        		} else {
+        			alert(msg +"SOMETHING WENT WRONG CALL FOR ASSISTANCE");
+        		}
+        	}).fail(function() {
+        		alert("error: server not available");
+        	});
+        }
     });
 });
 
