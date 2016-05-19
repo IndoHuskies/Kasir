@@ -157,7 +157,7 @@ $(document).ready(function (){
     	var comm = '\n'+$('#comment').val().trim();
         var message = items + total + comm + '\nOK?';
         var formData = {
-        	name: "bettle_cafe",
+        	name: "beetle_cafe",
         	item: items.trim(),
         	cash: totalCash,
         	transaction_time: checkoutTime,
@@ -171,7 +171,7 @@ $(document).ready(function (){
         e.preventDefault();
         if(confirm(message)){
         	$.ajax({
-        		url: 'http://isauw.org/tally/tally.php',
+        		url: 'http://www.isauw.org/tally/tally.php',
         		type: 'POST',
         		data: formData
         	}).success(function(msg) {
