@@ -124,7 +124,13 @@
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script type="text/javascript">
+	
 $(document).ready(function (){
+	// prevent closing window
+	$(window).on('beforeunload', function(){
+        return 'WARNING! Closing window';
+    });
+
 //Update total when quantity changes
 	$(".product #quantity").change(function() {
 	    updateTotal();
@@ -182,6 +188,20 @@ $(document).ready(function (){
         		alert("error: server not available");
         	});
         }
+
+        // local storage
+        if(typeof(Storage) !== "undefined") {
+		    // Code for localStorage/sessionStorage.
+		    var lsText = localStorage.orderTrans;
+		    if (lsText == null) {
+		    	lsText = ""
+		    }
+		    lsText += message
+		    localStorage.setItem("orderTrans", lsText)
+		} else {
+		    // No Web storage support
+		    // Shouln't need to handle this... supposedly
+		}
     });
 });
 
