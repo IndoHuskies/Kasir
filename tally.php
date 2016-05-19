@@ -19,7 +19,7 @@ $name = $_POST["name"];
 
 $item = $dbh->quote($_POST["item"]);
 $cash = $dbh->quote($_POST["cash"]);
-$time = $dbh->quote($_POST["time"]);
+$time = $dbh->quote($_POST["transaction_time"]);
 $comment = $dbh->quote($_POST["comment"]);
 
 try {  

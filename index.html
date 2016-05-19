@@ -110,6 +110,11 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script type="text/javascript">
 $(document).ready(function (){
+	// prevent closing window
+	$(window).on('beforeunload', function(){
+        return 'WARNING! Closing window';
+    });
+
 	updateTotal();
 //Update total when quantity changes
 	$(".product #quantity").change(function() {
@@ -152,6 +157,7 @@ $(document).ready(function (){
     	var comm = '\n'+$('#comment').val().trim();
         var message = items + total + comm + '\nOK?';
         var formData = {
+        	name: "bettle_cafe",
         	item: items.trim(),
         	cash: totalCash,
         	transaction_time: checkoutTime,
@@ -165,7 +171,7 @@ $(document).ready(function (){
         e.preventDefault();
         if(confirm(message)){
         	$.ajax({
-        		url: 'tally.php',
+        		url: 'http://isauw.org/tally/tally.php',
         		type: 'POST',
         		data: formData
         	}).success(function(msg) {
@@ -177,7 +183,21 @@ $(document).ready(function (){
         	}).fail(function() {
         		alert("ERROR: SERVER NOT FOUND; CALL FOR ASSISTANCE");
         	});
-        };
+
+        	// local storage
+	        if(typeof(Storage) !== "undefined") {
+			    // Code for localStorage/sessionStorage.
+			    var lsText = localStorage.orderTrans;
+			    if (lsText == null) {
+			    	lsText = ""
+			    }
+			    lsText += message
+			    localStorage.setItem("orderTrans", lsText)
+			} else {
+			    // No Web storage support
+			    // Shouln't need to handle this... supposedly
+			}
+	    };
    });
 });
 
