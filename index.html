@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>KERATON 2016 TALLY</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css">
+		<link href='http://fonts.googleapis.com/css?family=Ubuntu:400,700' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" type="text/css" href="tally.css">
+	</head>
+
+	<body>
+		<div class="header">
+			<div class="isauw">
+				<img src="logo_isauw_16 copy.png" alt="isauw" />
+			</div>
+			<div class="keraton">
+				<img src="Keraton logo.png" alt="logo" />
+			</div>
+			<h1>
+				Tally System
+			</h1>
+		</div>	
+
+		<div class="container">
+			<h1>
+				VENDOR
+				<br>
+				<hr>
+			</h1>
+				<div class="menu row">
+					<form class="row" id="orderForm">
+						<div class="trans col-md-7">
+							<div class="product col-md-6" data-price="5.00">
+								<div class="item col-md-8" id="item1">
+									Item 1
+								</div>
+
+								<div class="col-md-4">
+									<input type="number" min="0" class="form-control" id="quantity">
+								</div>
+							</div>
+
+							<div class="product col-md-6" data-price="2.50">
+								<div class="item col-md-8" id="item2">
+									Item 2 ($10.00)
+								</div>
+
+								<div class="col-md-4">
+									<input type="number" min="0" class="form-control" id="quantity">
+								</div>
+							</div>
+
+							<div class="product col-md-6" data-price="10.00">
+								<div class="item col-md-8" id="item3">
+									Item 3
+								</div>
+
+								<div class="col-md-4">
+									<input type="number" min="0" class="form-control" id="quantity">
+								</div>
+							</div>
+
+							<div class="product col-md-6" data-price="10.00">
+								<div class="item col-md-8" id="item4">
+									Item 4 ($10.00)
+								</div>
+
+								<div class="col-md-4">
+									<input type="number" min="0" class="form-control" id="quantity">
+								</div>
+							</div>
+
+							<div class="col-md-12">
+								<br>
+							</div>
+
+							<div class="form-group row">
+								<label for="comment" class="col-md-2 form-control-label">Comment</label>
+								<div class="col-md-12">
+									<input type="text" class="form-control" id="comment">
+								</div>
+							</div>
+
+						<div class="prevTrans">
+							<br>
+							<br>
+							Previous Transactions:
+							<hr>
+							<ol id="tran" start="1">
+							</ol>
+						</div>
+					</div>
+
+					<div class="receipt col-md-5">
+						Transaction #:
+						<hr>
+						<div class="transactions">
+						</div>
+						<br>
+						<div class="final"></div>
+							<div class="form-group" style="text-align:center;">
+	                                <input type="submit" class="btn btn-lg orderButton" value="ORDER">
+	                        </div>
+						</div>
+					</form>
+				</div>
+			</div>
+	</body>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script type="text/javascript">
+$(document).ready(function (){
+	updateTotal();
+//Update total when quantity changes
+	$(".product #quantity").change(function() {
+	    updateTotal();
+	});
+
+// unit price
+   $('.product p').each(function() {
+       var $price = $(this).parents("div").data('price');
+      $(this).before($price);
+    });
+
+   $('#orderForm').submit(function(e){
+   		var date = new Date();
+    	var hour = date.getHours();
+    	if(hour<10) {
+                hour = "0"+hour;
+        }
+        var min = date.getMinutes();
+        if(min<10) {
+                min = "0"+min;
+        }
+        var sec = date.getSeconds();
+        if(sec<10) {
+                sec = "0"+sec;
+        }
+        var checkoutTime = hour+':'+min+":"+sec;
+        var items = "";
+        var totalCash = 0.0;
+    	$(".product").each(function() {
+        	var quantity = $('#quantity', this).val();
+        	quantity = parseInt(quantity);
+    		if(quantity > 0){
+    			var name = $('.item', this).html();
+    			items += quantity + "x     " + name.trim() + "\n";
+    			totalCash += $(this).data('price') * quantity;
+    		}
+    	});
+    	var total = $('.final').html().trim();
+    	var comm = '\n'+$('#comment').val().trim();
+        var message = items + total + comm + '\nOK?';
+        var formData = {
+        	item: items.trim(),
+        	cash: totalCash,
+        	transaction_time: checkoutTime,
+        	comment: comm,
+        	action: "submit_transaction"
+        }
+
+        //MOVE TO SUCCESS WHEN WORKING !!!!
+        updatePrev(items, totalCash, comm);
+
+        e.preventDefault();
+        if(confirm(message)){
+        	$.ajax({
+        		url: 'tally.php',
+        		type: 'POST',
+        		data: formData
+        	}).success(function(msg) {
+        		if(msg == 'success'){
+        			$('#orderForm')[0].reset();
+        		} else {
+        			alert(msg + "ERROR: CALL FOR ASSISTANCE");
+        		}
+        	}).fail(function() {
+        		alert("ERROR: SERVER NOT FOUND; CALL FOR ASSISTANCE");
+        	});
+        };
+   });
+});
+
+function updatePrev(items, totalCash, comm) {
+	if($("li").size() == 5){
+		$("li:nth-child(1)").remove();
+		var num = document.getElementById("tran");
+		var index = num.start;
+		num.start = index+1;
+	}
+	var text = items.split('\n');
+	var textToHtml = "";
+	for(i = 0; i < text.length; i++){
+		textToHtml += text[i]+"<br>";
+	}
+	$("ol").append('<li class="transNum"><div class="totalPrice row">Total: $'+totalCash.toFixed(2)+'</div><div class="items">'+textToHtml+'</div><div class="note">'+comm+'</div></li>');
+}
+
+var updateTotal = function() {
+ 
+       var sum = 0;
+       var receipt = '';
+    //Add each product price to total
+    $(".product").each(function() {
+        var price = $(this).data('price');
+        var quantity = $('#quantity', this).val();
+
+   
+        //Total for one product
+        var subtotal = price*quantity;
+        //Round to 2 decimal places.
+        sum += subtotal;
+        subtotal = subtotal.toFixed(2);  
+
+        if(quantity > 0){
+        	var name = $('.item', this).html();
+        	receipt += '<div class="order row"><div class="quant col-md-1">'+parseInt(quantity)+'</div><div class="name col-md-8">'+name+'</div><div class="price col-md-2">'+subtotal+'</div></div>';
+        }
+        $('.transactions').html(receipt);
+
+    });
+    
+    $('.final').html('Total: ' + sum.toFixed(2));
+
+    if(sum == 0){
+    	$("input[type=submit]").prop("disabled", true);
+    } else {
+    	$("input[type=submit]").prop("disabled", false);
+    }
+
+};
+
+
+</script>
+</html>

@@ -6,11 +6,15 @@ body, h1 {
 	font-weight: normal;
 }
 
+body {
+	font-size: 20px;
+}
+
 .header {
 	background-color: rgb(129, 27, 20);
 	padding: 0.5em;
 	color: white;
-	height: 55px;
+	height: 65px;
 }
 
 .isauw img {
@@ -35,7 +39,7 @@ body, h1 {
 }
 
 .product .item {
-	font-size: 25px;
+	font-size: 22px;
 }
 
 .product {
@@ -56,6 +60,7 @@ body, h1 {
 
 .totalPrice {
 	font-weight: bold;
+	float: right;
 }
 
 .final {
@@ -64,7 +69,11 @@ body, h1 {
 	font-size: 1.5em;
 }
 
-.items {
+.items, .note {
 	list-style-type: none;
 	text-align: left;
+}
+
+li {
+	padding-bottom: 15px;
 }
