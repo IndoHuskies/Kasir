@@ -29,43 +29,43 @@
 			</h1>
 				<div class="menu row">
 					<form class="row" id="orderForm">
-						<div class="trans col-md-8">
+						<div class="trans col-md-7">
 							<div class="product col-md-6" data-price="5.00">
-								<div class="item col-md-6" id="item1">
+								<div class="item col-md-8" id="item1">
 									Item 1
 								</div>
 
-								<div class="col-md-3">
+								<div class="col-md-4">
 									<input type="number" min="0" class="form-control" id="quantity">
 								</div>
 							</div>
 
 							<div class="product col-md-6" data-price="2.50">
-								<div class="item col-md-6" id="item2">
-									Item 2
+								<div class="item col-md-8" id="item2">
+									Item 2 ($10.00)
 								</div>
 
-								<div class="col-md-3">
+								<div class="col-md-4">
 									<input type="number" min="0" class="form-control" id="quantity">
 								</div>
 							</div>
 
 							<div class="product col-md-6" data-price="10.00">
-								<div class="item col-md-6" id="item3">
+								<div class="item col-md-8" id="item3">
 									Item 3
 								</div>
 
-								<div class="col-md-3">
+								<div class="col-md-4">
 									<input type="number" min="0" class="form-control" id="quantity">
 								</div>
 							</div>
 
 							<div class="product col-md-6" data-price="10.00">
-								<div class="item col-md-6" id="item4">
-									Item 4
+								<div class="item col-md-8" id="item4">
+									Item 4 ($10.00)
 								</div>
 
-								<div class="col-md-3">
+								<div class="col-md-4">
 									<input type="number" min="0" class="form-control" id="quantity">
 								</div>
 							</div>
@@ -76,7 +76,7 @@
 
 							<div class="form-group row">
 								<label for="comment" class="col-md-2 form-control-label">Comment</label>
-								<div class="col-md-11">
+								<div class="col-md-12">
 									<input type="text" class="form-control" id="comment">
 								</div>
 							</div>
@@ -86,27 +86,12 @@
 							<br>
 							Previous Transactions:
 							<hr>
-							<div class="tran row">
-								<div class="transNum col-md-2">1000</div>
-								<ul class="items col-md-8">
-									<li>item1 (note)</li>
-									<li>item2</li>
-								</ul>
-								<div class="totalPrice col-md-2">$100.00</div>
-							</div>
-
-							<div class="tran row">
-								<div class="transNum col-md-2">999</div>
-								<ul class="items col-md-8">
-									<li>item1</li>
-									<li>item2</li>
-								</ul>
-								<div class="totalPrice col-md-2">$150.00</div>
-							</div>
+							<ol id="tran" start="1">
+							</ol>
 						</div>
 					</div>
 
-					<div class="receipt col-md-4">
+					<div class="receipt col-md-5">
 						Transaction #:
 						<hr>
 						<div class="transactions">
@@ -114,7 +99,7 @@
 						<br>
 						<div class="final"></div>
 							<div class="form-group" style="text-align:center;">
-	                                <input type="submit" class="btn btn-lg" value="ORDER">
+	                                <input type="submit" class="btn btn-lg orderButton" value="ORDER">
 	                        </div>
 						</div>
 					</form>
@@ -125,6 +110,7 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script type="text/javascript">
 $(document).ready(function (){
+	updateTotal();
 //Update total when quantity changes
 	$(".product #quantity").change(function() {
 	    updateTotal();
@@ -136,14 +122,14 @@ $(document).ready(function (){
       $(this).before($price);
     });
 
-    $('#orderForm').submit(function(e) {	
-    	var date = new Date();
+   $('#orderForm').submit(function(e){
+   		var date = new Date();
     	var hour = date.getHours();
     	if(hour<10) {
                 hour = "0"+hour;
         }
         var min = date.getMinutes();
-        if(m<10) {
+        if(min<10) {
                 min = "0"+min;
         }
         var sec = date.getSeconds();
@@ -151,39 +137,64 @@ $(document).ready(function (){
                 sec = "0"+sec;
         }
         var checkoutTime = hour+':'+min+":"+sec;
-        var message = "";
+        var items = "";
+        var totalCash = 0.0;
     	$(".product").each(function() {
         	var quantity = $('#quantity', this).val();
+        	quantity = parseInt(quantity);
     		if(quantity > 0){
     			var name = $('.item', this).html();
-    			message += name + " " + quantity +"\n";
+    			items += quantity + "x     " + name.trim() + "\n";
+    			totalCash += $(this).data('price') * quantity;
     		}
     	});
-    	message += $('.final').html();
+    	var total = $('.final').html().trim();
+    	var comm = '\n'+$('#comment').val().trim();
+        var message = items + total + comm + '\nOK?';
         var formData = {
-        	item: message;
-        	time: checkoutTime;
-        	comment: $('#comment').val();
+        	item: items.trim(),
+        	cash: totalCash,
+        	transaction_time: checkoutTime,
+        	comment: comm,
+        	action: "submit_transaction"
         }
+
+        //MOVE TO SUCCESS WHEN WORKING !!!!
+        updatePrev(items, totalCash, comm);
+
         e.preventDefault();
-        var comm = '\n'+$('#comment').val();
-        if(confirm(message+comm+'\n'+OK?)){
+        if(confirm(message)){
         	$.ajax({
-        		url:'tally.php',
+        		url: 'tally.php',
         		type: 'POST',
         		data: formData
-        	}).success(function(msg)){
-        		if(msg = 'success'){
+        	}).success(function(msg) {
+        		if(msg == 'success'){
         			$('#orderForm')[0].reset();
         		} else {
-        			alert(msg +"SOMETHING WENT WRONG CALL FOR ASSISTANCE");
+        			alert(msg + "ERROR: CALL FOR ASSISTANCE");
         		}
         	}).fail(function() {
-        		alert("error: server not available");
+        		alert("ERROR: SERVER NOT FOUND; CALL FOR ASSISTANCE");
         	});
-        }
-    });
+        };
+   });
 });
+
+function updatePrev(items, totalCash, comm) {
+	if($("li").size() == 5){
+		$("li:nth-child(1)").remove();
+		var num = document.getElementById("tran");
+		var index = num.start;
+		num.start = index+1;
+	}
+	var text = items.split('\n');
+	var textToHtml = "";
+	for(i = 0; i < text.length; i++){
+		textToHtml += text[i]+"<br>";
+	}
+	$("ol").append('<li class="transNum"><div class="totalPrice row">Total: $'+totalCash.toFixed(2)+'</div><div class="items">'+textToHtml+'</div><div class="note">'+comm+'</div></li>');
+}
 
 var updateTotal = function() {
  
@@ -203,13 +214,19 @@ var updateTotal = function() {
 
         if(quantity > 0){
         	var name = $('.item', this).html();
-        	receipt += '<div class="order row"><div class="quant col-md-1">'+quantity+'</div><div class="name col-md-8">'+name+'</div><div class="price col-md-2">'+subtotal+'</div></div>';
+        	receipt += '<div class="order row"><div class="quant col-md-1">'+parseInt(quantity)+'</div><div class="name col-md-8">'+name+'</div><div class="price col-md-2">'+subtotal+'</div></div>';
         }
         $('.transactions').html(receipt);
 
     });
     
     $('.final').html('Total: ' + sum.toFixed(2));
+
+    if(sum == 0){
+    	$("input[type=submit]").prop("disabled", true);
+    } else {
+    	$("input[type=submit]").prop("disabled", false);
+    }
 
 };
 
