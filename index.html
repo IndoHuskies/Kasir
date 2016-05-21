@@ -32,7 +32,7 @@
 						<div class="trans col-md-7">
 							<div class="product col-md-6" data-price="5.00">
 								<div class="item col-md-8" id="item1">
-									Item 1
+									Item 1 ($5.00)
 								</div>
 
 								<div class="col-md-4">
@@ -42,7 +42,7 @@
 
 							<div class="product col-md-6" data-price="2.50">
 								<div class="item col-md-8" id="item2">
-									Item 2 ($10.00)
+									Item 2 ($2.50)
 								</div>
 
 								<div class="col-md-4">
@@ -52,7 +52,7 @@
 
 							<div class="product col-md-6" data-price="10.00">
 								<div class="item col-md-8" id="item3">
-									Item 3
+									Item 3 ($10.00)
 								</div>
 
 								<div class="col-md-4">
@@ -111,6 +111,8 @@
 	<script type="text/javascript">
 
 	var orderNum = 1;
+	var orderDown = [];
+	var VENDOR = "beetle_cafe"  // DATABASE NAME
 
 $(document).ready(function (){
 
@@ -165,7 +167,7 @@ $(document).ready(function (){
     	lsText = items + total + ' comment:' + comm;
         var message = items + total + comm + '\nOK?';
         var formData = {
-        	name: "beetle_cafe",
+        	name: VENDOR,
         	item: items.trim(),
         	cash: totalCash,
         	transaction_time: checkoutTime,
@@ -207,9 +209,34 @@ $(document).ready(function (){
 			    // No Web storage support
 			    // Shouln't need to handle this... supposedly
 			}
+
+			// download file as txt
+			orderDown.push("#" + orderNum + ") " + lsText + "\nTransaction time: " + checkoutTime + "\n");
+			if (orderNum % 15 == 0) {
+				var dtext = ""
+				for( var i = 0; i < orderDown.length; i++) {
+					dtext += orderDown[i];
+				}
+				download(VENDOR + "_" + (orderNum / 15), dtext);
+				orderDown = [];
+			}
 	    };
    });
 });
+
+// For downloading th file as txt
+function download(filename, text) {
+	var element = document.createElement('a');
+	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+	element.setAttribute('download', filename);
+
+	element.style.display = 'none';
+	document.body.appendChild(element);
+
+	element.click();
+
+	document.body.removeChild(element);
+}
 
 function updatePrev(items, totalCash, comm) {
 	if(orderNum <= 10){
