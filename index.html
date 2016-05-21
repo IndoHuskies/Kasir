@@ -86,13 +86,13 @@
 							<br>
 							Previous Transactions:
 							<hr>
-							<ol id="tran" start="1">
+							<ol reversed id="tran" start="0">
 							</ol>
 						</div>
 					</div>
 
 					<div class="receipt col-md-5">
-						Transaction #:
+						Transaction #: <span class="nomorTrans"></span>
 						<hr>
 						<div class="transactions">
 						</div>
@@ -109,7 +109,14 @@
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script type="text/javascript">
+
+	var orderNum = 1;
+
 $(document).ready(function (){
+
+	//global var
+	var lsText;
+
 	// prevent closing window
 	$(window).on('beforeunload', function(){
         return 'WARNING! Closing window';
@@ -155,6 +162,7 @@ $(document).ready(function (){
     	});
     	var total = $('.final').html().trim();
     	var comm = '\n'+$('#comment').val().trim();
+    	lsText = items + total + ' comment:' + comm;
         var message = items + total + comm + '\nOK?';
         var formData = {
         	name: "beetle_cafe",
@@ -165,8 +173,6 @@ $(document).ready(function (){
         	action: "submit_transaction"
         }
 
-        //MOVE TO SUCCESS WHEN WORKING !!!!
-        updatePrev(items, totalCash, comm);
 
         e.preventDefault();
         if(confirm(message)){
@@ -176,7 +182,11 @@ $(document).ready(function (){
         		data: formData
         	}).success(function(msg) {
         		if(msg == 'success'){
+        			updatePrev(items, totalCash, comm);
         			$('#orderForm')[0].reset();
+        			$('.transactions').html("");
+        			$('.final').html("");
+        			updateTotal();
         		} else {
         			alert(msg + "ERROR: CALL FOR ASSISTANCE");
         		}
@@ -187,12 +197,12 @@ $(document).ready(function (){
         	// local storage
 	        if(typeof(Storage) !== "undefined") {
 			    // Code for localStorage/sessionStorage.
-			    var lsText = localStorage.orderTrans;
-			    if (lsText == null) {
-			    	lsText = ""
+			    var lsText1 = localStorage.orderTrans;
+			    if (lsText1 == null) {
+			    	lsText1 = ""
 			    }
-			    lsText += message
-			    localStorage.setItem("orderTrans", lsText)
+			    lsText1 += '#' + orderNum + ')  '+ lsText + ' | '
+			    localStorage.setItem("orderTrans", lsText1)
 			} else {
 			    // No Web storage support
 			    // Shouln't need to handle this... supposedly
@@ -202,21 +212,33 @@ $(document).ready(function (){
 });
 
 function updatePrev(items, totalCash, comm) {
-	if($("li").size() == 5){
-		$("li:nth-child(1)").remove();
+	if(orderNum <= 10){
 		var num = document.getElementById("tran");
 		var index = num.start;
 		num.start = index+1;
+		orderNum++;
+
+	}
+	if($("li").size() == 10){
+		$("li:nth-child(10)").remove();
+		var num = document.getElementById("tran");
+		var index = num.start;
+		num.start = index+1;
+		orderNum++;
 	}
 	var text = items.split('\n');
 	var textToHtml = "";
 	for(i = 0; i < text.length; i++){
 		textToHtml += text[i]+"<br>";
 	}
-	$("ol").append('<li class="transNum"><div class="totalPrice row">Total: $'+totalCash.toFixed(2)+'</div><div class="items">'+textToHtml+'</div><div class="note">'+comm+'</div></li>');
+	var prevHtml = $("ol").html();
+
+	$("ol").html('<li class="transNum"><div class="totalPrice row">Total: $'+totalCash.toFixed(2)+'</div><div class="items">'+textToHtml+'</div><div class="note">'+comm+'</div></li>'+prevHtml);
 }
 
 var updateTotal = function() {
+
+		$(".nomorTrans").html(orderNum);
  
        var sum = 0;
        var receipt = '';
