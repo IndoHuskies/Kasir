@@ -20,7 +20,7 @@ $name = $_POST["name"];
 
 $item = $dbh->quote($_POST["item"]);
 $cash = $dbh->quote($_POST["cash"]);
-$time = $dbh->quote($_POST["transaction_time"]);
+$time = $_POST["transaction_time"];
 $comment = $dbh->quote($_POST["comment"]);
 
 $dbh->beginTransaction();
@@ -39,7 +39,7 @@ try {
   $stmt->bindParam(':item', $item, PDO::PARAM_STR);   
   $stmt->bindParam(':cash', $cash, PDO::PARAM_INT); 
 
-  $stmt->bindParam(':time', $time, PDO::PARAM_STR);    
+  $stmt->bindParam(':time', date('H:i:s', strtotime($time)), PDO::PARAM_STR);    
   $stmt->bindParam(':comment', $comment, PDO::PARAM_STR);   
 
   $stmt->execute();
