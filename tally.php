@@ -18,10 +18,10 @@ try {
 
 $name = $_POST["name"];
 
-$item = $dbh->quote($_POST["item"]);
-$cash = $dbh->quote($_POST["cash"]);
+$item = $_POST["item"];
+$cash = $_POST["cash"];
 $time = $_POST["transaction_time"];
-$comment = $dbh->quote($_POST["comment"]);
+$comment = $_POST["comment"];
 
 $dbh->beginTransaction();
 
@@ -54,13 +54,14 @@ try {
 
 
 // write to local file in server
-$entry = $item . "-" . $cash . "-" . $time . "-" . $comment;
+$entry = "'" . $item . "-" . $cash . "-" . $time . "-" . $comment . "'";
+
 $ret = exec("python backup.py " . $name . " " . $entry);
 
 if ($ret == "success") {
   echo $ret;
 } else {
-  echo "Failed to backup";
+  echo $ret . "Failed to backup";
 }
 
 ?>
