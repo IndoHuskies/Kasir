@@ -5,9 +5,9 @@ MENU = {"beetle_cafe": ["Item 1",
 						"Item 3",
 						"Item 4"],
 		"bumbu_truck": ["Ketoprak", 
-						"Nasi Ayam Bakar, Tahu Bandung, Lalapan & Sambal Terasi", 
-						"Martabak Telur", 
-						"Soto Mie Jakarta", 
+						"Nasi", 
+						"Martabak", 
+						"Soto", 
 						"Es Kacang"],
 		"depot_cemilan": ["Kusuka",
 						  "Mie Kremes",
@@ -17,15 +17,15 @@ MENU = {"beetle_cafe": ["Item 1",
 						  "Tango Chocolate",
 						  "Tango Strawberry",
 						  "Chitato Indomie",
-						  "Assorted Yupi"],
+						  "Assorted"],
 		"depot_minuman": ["Bottled Water",
 						  "Teh Botol",
 						  "Teh Kotak",
 						  "Milo",
-						  "Yeo's chrysantehmun",
-						  "Yeo's soymilk",
-						  "Yeo's sugar cane",
-						  "Yeo's water gourd",
+						  "chrysantehmun",
+						  "soymilk",
+						  "sugar cane",
+						  "water gourd",
 						  "Kusuka",
 						  "Mie Kremes",
 						  "Momogi Keju",
@@ -57,12 +57,13 @@ MENU = {"beetle_cafe": ["Item 1",
 						 "Ube",
 						 "Salted Caramel"],
 		"malay_satay_hut": ["Nasi Lemak",
-							"Hainase Chicken Rice",
-							"Malaysian Fried Rice ($10.00)",
-							"Malaysian Fried Rice Noodle",
-							"Dry Curry Chicken Rice",
+							"Hainase",
+							"Fried Rice ($10.00)",
+							"Rice Noodle",
+							"Curry",
 							"Shaved Ice",
-							"Teh Tarik"],
+							"Tarik ($4.00)",
+							"Tarik ($5.00)"],
 		"martabak_holland": ["Martabak Manis Nutella",
 							 "Martabak Manis Keju",
 							 "Martabak Manis Skippy"],
@@ -88,6 +89,7 @@ def count_item(menu, entries):
 
 			# exclude tester
 			if "test" in comment:
+				print e
 				continue
 			
 			for i in item:
@@ -123,7 +125,7 @@ def main():
 	entries = []
 	total = 0
 	with open(sys.argv[1], "rb") as csvfile:
-		reader = csv.reader(csvfile, delimiter=';')
+		reader = csv.reader(csvfile, delimiter=',')
 
 		for r in reader:
 			id_tr = int(r[0])
@@ -131,6 +133,9 @@ def main():
 			cash = float(r[2])
 			time = r[3]
 			comment = r[4].strip()
+			if "test" in comment.lower():
+				print (id_tr, item_tr, cash, time, comment)
+				continue
 			entries.append((id_tr, item_tr, cash, time, comment))
 
 			total += cash
@@ -138,13 +143,15 @@ def main():
 	menu = get_menu(sys.argv[1])
 
 	cnt = count_item(menu, entries)
-
+	print
 	print "# of transactions: ", len(entries)
 	print "Total sell: $", total
 
 	print
 	for c in cnt:
 		print cnt[c], " ", c
+
+	print
 	return
 
 if __name__ == "__main__":
